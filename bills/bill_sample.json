@@ -1,0 +1,8 @@
+{
+    "billNumber": "BIL-001",
+    "date": "2023-10-05T00:00:00.000Z",
+    "customerName": "John Doe",
+    "amount": 5000,
+    "status": "paid",
+    "paymentMethod": "Cash"
+  }
