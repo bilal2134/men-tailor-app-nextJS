@@ -65,9 +65,9 @@ export default function ViewBills() {
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-3xl">{t('viewBillsTitle')}</h1>
+      <h1 className="mb-6 text-3xl">{t('View Bills')}</h1>
       {bills.length === 0 ? (
-        <p>{t('noBills')}</p>
+        <p>{t('No bills to show.')}</p>
       ) : (
         <table className="w-full table-auto border-collapse">
           <thead>

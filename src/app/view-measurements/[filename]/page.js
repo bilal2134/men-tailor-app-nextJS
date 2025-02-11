@@ -1,11 +1,11 @@
 // src/app/view-measurements/[filename]/page.js
-'use client';
+"use client";
 
-import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { useAuth } from '../../../context/AuthContext';
-import { useTranslation } from 'react-i18next';
-import Link from 'next/link';
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useAuth } from "../../../context/AuthContext";
+import { useTranslation } from "react-i18next";
+import Link from "next/link";
 
 export default function MeasurementDetail() {
   const { isAuthenticated } = useAuth();
@@ -17,9 +17,9 @@ export default function MeasurementDetail() {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/login');
+      router.push("/login");
     } else {
-      const filename = pathname.split('/').pop();
+      const filename = pathname.split("/").pop();
       fetchMeasurement(filename);
     }
   }, [isAuthenticated, router, pathname]);
@@ -31,164 +31,143 @@ export default function MeasurementDetail() {
         const data = await response.json();
         setMeasurement(data);
       } else {
-        alert(t('measurementNotFound'));
-        router.push('/view-measurements');
+        alert(t("measurementNotFound"));
+        router.push("/view-measurements");
       }
     } catch (error) {
-      console.error('Error fetching measurement:', error);
-      alert(t('failedToFetch'));
-      router.push('/view-measurements');
+      console.error("Error fetching measurement:", error);
+      alert(t("failedToFetch"));
+      router.push("/view-measurements");
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return <p className="p-8">{t('loading')}...</p>;
+    return (
+      <p className="p-8 text-center text-lg font-semibold">{t("loading")}...</p>
+    );
   }
 
   if (!measurement) {
-    return <p className="p-8">{t('noMeasurements')}</p>;
+    return (
+      <p className="p-8 text-center text-lg font-semibold">
+        {t("noMeasurements")}
+      </p>
+    );
   }
 
-  // Helper function to format dates
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB');
+  // Helper function to format values with a dash if null/undefined
+  const formatValue = (value, prefix = "") => {
+    if (!value || !value.trim()) return "-";
+    return prefix === "Rs. " ? `${prefix}${value}` : `${value}${prefix}`;
   };
+  
 
   return (
-    <div className="p-8">
-      <h1 className="mb-6 text-3xl">{t('viewMeasurementsTitle')}</h1>
-      <div className="mb-6">
+    <div dir="rtl" className="max-w-4xl mx-auto p-6">
+      {/* Title */}
+      <h1 className="text-4xl font-bold text-center text-gray-800 mb-6">
+        {t("viewMeasurementsTitle")}
+      </h1>
+
+      {/* Back Button */}
+      <div className="mb-6 text-end">
         <Link href="/view-measurements">
-          <button className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
-            {t('backToList')}
+          <button className="px-5 py-2 text-white bg-blue-600 rounded-lg shadow-lg hover:bg-blue-700">
+            {t("backToList")}
           </button>
         </Link>
       </div>
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Serial Number */}
-          <div>
-            <strong>{t('serialNumber')}:</strong> {measurement.serialNumber}
-          </div>
 
-          {/* Date */}
-          <div>
-            <strong>{t('date')}:</strong> {formatDate(measurement.date)}
-          </div>
+      {/* Measurement Details Card */}
+      <div className="bg-white shadow-lg rounded-lg p-8 border border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-lg">
+          {/* General Information */}
+          {[
+            { key: "serialNumber", value: measurement.serialNumber },
+            { key: "phoneNumber", value: measurement.phoneNumber },
+            { key: "date", value: measurement.date },
+            { key: "name", value: measurement.name },
+            { key: "measurementType", value: measurement.measurementType },
+          ].map(({ key, value }) => (
+            <div key={key} className="flex justify-between">
+              <strong className="text-right w-1/2">{t(key)}: </strong>
+              <span className="w-1/2 text-left">
+                {key === "date" ? formatValue(new Date(value).toLocaleDateString("en-GB")) : formatValue(value)}
+              </span>
+            </div>
+          ))}
 
-          {/* Name */}
-          <div>
-            <strong>{t('name')}:</strong> {measurement.name}
-          </div>
+          {/* Measurements */}
+          {[
+            { key: "bazoo", value: measurement.bazoo },
+            { key: "teera", value: measurement.teera },
+            { key: "gala", value: measurement.gala },
+            { key: "lambai", value: measurement.lambai },
+            { key: "chaati", value: measurement.chaati },
+            { key: "kamar", value: measurement.kamar },
+            { key: "ghera", value: measurement.ghera },
+            { key: "shalwar", value: measurement.shalwar },
+            { key: "paincha", value: measurement.paincha },
+          ].map(({ key, value }) => (
+            <div key={key} className="flex justify-between">
+              <strong className="text-right w-1/2">{t(key)}: </strong>
+              <span className="w-1/2 text-left">{formatValue(value, ` ${t("inches")}`)}</span>
+            </div>
+          ))}
 
-          {/* Measurement Type */}
-          <div>
-            <strong>{t('measurementType')}:</strong> {measurement.measurementType}
-          </div>
-
-          {/* Arm Length */}
-          <div>
-            <strong>{t('armLength')}:</strong> {measurement.armLength} cm
-          </div>
-
-          {/* Neck Length */}
-          <div>
-            <strong>{t('neckLength')}:</strong> {measurement.neckLength} cm
-          </div>
-
-          {/* General Length */}
-          <div>
-            <strong>{t('generalLength')}:</strong> {measurement.generalLength} cm
-          </div>
-
-          {/* Back Length */}
-          <div>
-            <strong>{t('backLength')}:</strong> {measurement.backLength} cm
-          </div>
-
-          {/* Chest Length */}
-          <div>
-            <strong>{t('chestLength')}:</strong> {measurement.chestLength} cm
-          </div>
-
-          {/* Around Length (Ghera) */}
-          <div>
-            <strong>{t('aroundLength')}:</strong> {measurement.aroundLength} cm
-          </div>
-
-          {/* Pockets */}
-          <div>
-            <strong>{t('pockets')}:</strong> {measurement.pockets}
-          </div>
-
-          {/* Shalwar Length */}
-          <div>
-            <strong>{t('shalwarLength')}:</strong> {measurement.shalwarLength} cm
-          </div>
-
-          {/* Shalwar Panchay */}
-          <div>
-            <strong>{t('shalwarPanchay')}:</strong> {measurement.shalwarPanchay}
-          </div>
-
-          {/* Front Side Length */}
-          <div>
-            <strong>{t('frontSideLength')}:</strong> {measurement.frontSideLength} cm
-          </div>
-
-          {/* Side Length */}
-          <div>
-            <strong>{t('sideLength')}:</strong> {measurement.sideLength} cm
-          </div>
-
-          {/* Hip Length */}
-          <div>
-            <strong>{t('hipLength')}:</strong> {measurement.hipLength} cm
-          </div>
-
-          {/* Cuff Length */}
-          <div>
-            <strong>{t('cuffLength')}:</strong> {measurement.cuffLength} cm
-          </div>
-
-          {/* Plate Length */}
-          <div>
-            <strong>{t('plateLength')}:</strong> {measurement.plateLength} cm
-          </div>
-
-          {/* Other Length (Teera) */}
-          <div>
-            <strong>{t('otherLengthTeera')}:</strong> {measurement.otherLengthTeera} cm
-          </div>
-
-          {/* Second Other Length (Ben) */}
-          <div>
-            <strong>{t('otherLengthBen')}:</strong> {measurement.otherLengthBen} cm
-          </div>
+          {/* Boolean Fields as Checkboxes */}
+          {[
+            //{ key: "pockets", value: measurement.pockets },
+            { key: "frontPocket", value: measurement.frontPocket },
+            { key: "sidePocket", value: measurement.sidePocket },
+            { key: "hip", value: measurement.hip },
+            { key: "collar", value: measurement.collar },
+            { key: "ben", value: measurement.ben },
+            { key: "cuff", value: measurement.cuff },
+            { key: "plait", value: measurement.plait },
+          ].map(({ key, value }) => (
+            <div key={key} className="flex justify-between items-center">
+              <strong className="text-right w-1/2">{t(key)}: </strong>
+              <input
+                type="checkbox"
+                checked={value ?? false}
+                readOnly
+                className="w-5 h-5 accent-blue-600"
+              />
+            </div>
+          ))}
 
           {/* Extra Details */}
           <div className="col-span-2">
-            <strong>{t('extraDetails')}:</strong> {measurement.extraDetails}
+            <strong>{t("extraDetails")}: </strong> {formatValue(measurement.extraDetails)}
           </div>
 
-          {/* Advance Paid */}
-          <div>
-            <strong>{t('advancePaid')}:</strong> {measurement.advancePaid} PKR
+          {/* Address */}
+          <div className="col-span-2">
+            <strong>{t("address")}: </strong> {formatValue(measurement.address)}
           </div>
 
-          {/* Total Bill */}
-          <div>
-            <strong>{t('totalBill')}:</strong> {measurement.totalBill} PKR
-          </div>
+          {/* Payment Information */}
+          {[
+            { key: "advancePaid", value: measurement.advancePaid, prefix: "Rs. " },
+            { key: "totalBill", value: measurement.totalBill, prefix: "Rs. " },
+          ].map(({ key, value, prefix }) => (
+            <div key={key} className="flex justify-between">
+              <strong className="text-right w-1/2">{t(key)}: </strong>
+              <span className="w-1/2 text-left">{formatValue(value, prefix)}</span>
+            </div>
+          ))}
         </div>
 
-        <div className="mt-6">
-          <Link href={`/edit-measurements/${`measurement_${measurement.serialNumber || 'unknown'}.json`}`}>
-            <button className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600">
-              {t('editMeasurement')}
+        {/* Edit Button */}
+        <div className="mt-6 text-center">
+          <Link href={`/edit-measurements/measurement_${
+            measurement.serialNumber || "unknown"
+          }.json`}>
+            <button className="px-5 py-2 text-white bg-green-600 rounded-lg shadow-lg hover:bg-green-700">
+              {t("editMeasurement")}
             </button>
           </Link>
         </div>
